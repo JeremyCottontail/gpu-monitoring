@@ -10,35 +10,35 @@ class JsonFormatter(logging.Formatter):
             "name": record.name,
             "message": record.getMessage(),
         }
-    standard_keys = {
-        "name",
-        "msg",
-        "args",
-        "levelname",
-        "levelno",
-        "pathname",
-        "filename",
-        "module",
-        "exc_info",
-        "exc_text",
-        "stack_info",
-        "lineno",
-        "funcName",
-        "created",
-        "msecs",
-        "relativeCreated",
-        "thread",
-        "threadName",
-        "processName",
-        "process",
-    }
-    extras = {
-        key: value
-        for key, value in record.__dict__.items()
-        if key not in standard_keys and not key.startswith("_")
-    }
-    if extras:
-        payload.update(extras)
+        standard_keys = {
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_info",
+            "exc_text",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+        }
+        extras = {
+            key: value
+            for key, value in record.__dict__.items()
+            if key not in standard_keys and not key.startswith("_")
+        }
+        if extras:
+            payload.update(extras)
         if record.exc_info:
             payload["exc_info"] = self.formatException(record.exc_info)
         return json_dumps(payload)
@@ -54,5 +54,3 @@ def configure_logging(level: str) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
     logging.basicConfig(level=level.upper(), handlers=[handler])
-
-

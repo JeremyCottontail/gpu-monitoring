@@ -9,7 +9,6 @@ from .system_metrics import gather_system_metrics
 
 LOGGER = logging.getLogger(__name__)
 
-
 try:  # pragma: no cover - optional dependency
     import pynvml  # type: ignore
 except Exception:  # pragma: no cover - fallback path
@@ -45,20 +44,31 @@ class PynvmlTelemetryProvider(TelemetryProvider):
             handle = pynvml.nvmlDeviceGetHandleByIndex(index)
             memory = pynvml.nvmlDeviceGetMemoryInfo(handle)
             utilization = safe_call(pynvml.nvmlDeviceGetUtilizationRates, handle)
-            temperature = safe_call(pynvml.nvmlDeviceGetTemperature, handle, pynvml.NVML_TEMPERATURE_GPU)
+            temperature = safe_call(
+                pynvml.nvmlDeviceGetTemperature, handle, pynvml.NVML_TEMPERATURE_GPU
+            )
             power_usage = safe_call(pynvml.nvmlDeviceGetPowerUsage, handle)
             power_limit = safe_call(pynvml.nvmlDeviceGetEnforcedPowerLimit, handle)
             fan_speed = safe_call(pynvml.nvmlDeviceGetFanSpeed, handle)
             encoder_util = safe_call(pynvml.nvmlDeviceGetEncoderUtilization, handle)
             decoder_util = safe_call(pynvml.nvmlDeviceGetDecoderUtilization, handle)
-            proc_info = safe_call(pynvml.nvmlDeviceGetComputeRunningProcesses_v2, handle) or []
+
+            get_processes = getattr(
+                pynvml, "nvmlDeviceGetComputeRunningProcesses_v2", None
+            )
+            if get_processes is None:
+                get_processes = getattr(
+                    pynvml, "nvmlDeviceGetComputeRunningProcesses", None
+                )
+            proc_info = safe_call(get_processes, handle) or []
 
             processes = []
             for proc in proc_info:
                 processes.append(
                     {
                         "pid": getattr(proc, "pid", None),
-                        "usedMemoryMiB": getattr(proc, "usedGpuMemory", 0) // (1024 * 1024),
+                        "usedMemoryMiB": getattr(proc, "usedGpuMemory", 0)
+                        // (1024 * 1024),
                         "name": safe_process_name(proc),
                     }
                 )
@@ -66,11 +76,15 @@ class PynvmlTelemetryProvider(TelemetryProvider):
             gpus.append(
                 {
                     "id": index,
-                    "name": pynvml.nvmlDeviceGetName(handle).decode("utf-8"),
-                    "uuid": pynvml.nvmlDeviceGetUUID(handle).decode("utf-8"),
-                    "driverVersion": pynvml.nvmlSystemGetDriverVersion().decode("utf-8"),
-                    "cudaVersion": safe_call(pynvml.nvmlSystemGetCudaDriverVersion_v2),
-                    "utilization": getattr(utilization, "gpu", None),
+                    "name": pynvml.nvmlDeviceGetName(handle),
+                    "uuid": pynvml.nvmlDeviceGetUUID(handle),
+                    "driverVersion": pynvml.nvmlSystemGetDriverVersion(),
+                    "cudaVersion": safe_call(
+                        pynvml.nvmlSystemGetCudaDriverVersion_v2
+                    ),
+                    "utilization": getattr(utilization, "gpu", None)
+                    if utilization
+                    else None,
                     "memoryUsed": bytes_to_mib(memory.used),
                     "memoryTotal": bytes_to_mib(memory.total),
                     "memoryFree": bytes_to_mib(memory.free),
@@ -78,8 +92,8 @@ class PynvmlTelemetryProvider(TelemetryProvider):
                     "powerUsage": scale_milli(power_usage),
                     "powerLimit": scale_milli(power_limit),
                     "fanSpeed": fan_speed,
-                    "encoderUtilization": getattr(encoder_util, 0, None) if encoder_util else None,
-                    "decoderUtilization": getattr(decoder_util, 0, None) if decoder_util else None,
+                    "encoderUtilization": unpack_utilization(encoder_util),
+                    "decoderUtilization": unpack_utilization(decoder_util),
                     "processes": processes,
                 }
             )
@@ -130,3 +144,7 @@ def bytes_to_mib(value) -> Optional[float]:  # pragma: no cover
         return None
 
 
+def unpack_utilization(value) -> Optional[float]:
+    if isinstance(value, (tuple, list)) and value:
+        return value[0]
+    return value

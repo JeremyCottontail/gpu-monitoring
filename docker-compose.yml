@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build:
@@ -8,9 +6,17 @@ services:
     ports:
       - "5000:5000"
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [utility, compute]
+              driver: nvidia
+              count: all
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: gpu-monitor-frontend
     ports:
       - "3000:80"
