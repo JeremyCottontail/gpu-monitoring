@@ -21,8 +21,6 @@
 
 *The dashboard provides a comprehensive, real-time view of GPU performance metrics, system statistics, and active workloads across all installed GPUs.*
 
-> **Note:** If you have a screenshot of the running application, place it in `./docs/dashboard-screenshot.png` or update the path above.
-
 ---
 
 ## ✨ Features
