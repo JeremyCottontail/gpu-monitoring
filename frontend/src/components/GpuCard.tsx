@@ -39,7 +39,7 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
                 <Gauge className="h-4 w-4 text-accent-300" />
                 GPU Utilization
               </span>
-              <span className="text-xs text-slate-400">Last 60s</span>
+              <span className="text-xs text-slate-400">Last 60s (0-100%)</span>
             </div>
             <MetricSparkline data={utilizationHistory} stroke="#38BDF8" />
           </div>

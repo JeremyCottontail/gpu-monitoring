@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from "recharts";
 
 type MetricSparklineProps = {
   data: number[];
@@ -11,7 +11,7 @@ const SparklineTooltip = ({ active, payload }: any) => {
   const value = payload[0].value;
   return (
     <div className="rounded-md bg-slate-900 px-3 py-1 text-sm text-slate-100 shadow-lg">
-      {Math.round(value)}%
+      {Math.round(value)}% of 100%
     </div>
   );
 };
@@ -29,6 +29,7 @@ export const MetricSparkline = ({ data, stroke = "#22D3EE" }: MetricSparklinePro
             <stop offset="100%" stopColor={stroke} stopOpacity={0.05} />
           </linearGradient>
         </defs>
+        <YAxis domain={[0, 100]} hide />
         <Area
           type="monotone"
           dataKey="value"

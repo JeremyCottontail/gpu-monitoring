@@ -24,7 +24,7 @@ const useHistory = () => {
       payload.gpus.forEach((gpu) => {
         const existing = next[gpu.id] ?? { utilization: [], memory: [] };
         next[gpu.id] = {
-          utilization: append(existing.utilization, gpu.utilization ?? 0),
+          utilization: append(existing.utilization, boundedUtilization(gpu.utilization)),
           memory: append(existing.memory, percentMemory(gpu)),
         };
       });
@@ -46,6 +46,12 @@ const percentMemory = (gpu: TelemetryPayload["gpus"][number]) => {
     return 0;
   }
   return Math.min(100, Math.round((gpu.memoryUsed / gpu.memoryTotal) * 100));
+};
+
+// Ensure utilization values are properly bounded between 0 and 100
+const boundedUtilization = (utilization: number | null | undefined) => {
+  if (utilization === null || utilization === undefined) return 0;
+  return Math.min(100, Math.max(0, utilization));
 };
 
 const average = (values: number[]) => {
