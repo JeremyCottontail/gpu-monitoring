@@ -26,9 +26,15 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
             <h3 className="mt-1 font-display text-2xl text-white">{gpu.name ?? "NVIDIA GPU"}</h3>
             <p className="text-xs text-slate-400">{gpu.uuid}</p>
           </div>
-          <div className="rounded-2xl bg-gradient-card px-4 py-3 text-right">
-            <p className="text-xs text-slate-300">Utilization</p>
-            <p className="font-display text-3xl text-white">{formatPercent(gpu.utilization)}</p>
+          <div className="flex flex-col gap-2">
+            <div className="rounded-2xl bg-gradient-card px-4 py-3 text-right">
+              <p className="text-xs text-slate-300">GPU</p>
+              <p className="font-display text-3xl text-white">{formatPercent(gpu.utilization)}</p>
+            </div>
+            <div className="rounded-2xl bg-gradient-card px-4 py-3 text-right">
+              <p className="text-xs text-slate-300">Memory</p>
+              <p className="font-display text-3xl text-white">{formatPercent(gpu.memoryUsed && gpu.memoryTotal ? (gpu.memoryUsed / gpu.memoryTotal) * 100 : 0)}</p>
+            </div>
           </div>
         </header>
 
