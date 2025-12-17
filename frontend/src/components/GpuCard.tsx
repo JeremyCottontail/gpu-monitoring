@@ -61,11 +61,10 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm text-slate-300 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 text-sm text-slate-300 md:grid-cols-3">
           <Stat label="Temperature" value={formatTemperature(gpu.temperature)} icon={<Thermometer className="h-4 w-4" />} />
           <Stat label="Power" value={formatPower(gpu.powerUsage)} icon={<Flame className="h-4 w-4" />} />
           <Stat label="Fan" value={formatPercent(gpu.fanSpeed)} icon={<Gauge className="h-4 w-4" />} />
-          <Stat label="Encoder/Decoder" value={`${formatPercent(gpu.encoderUtilization)} / ${formatPercent(gpu.decoderUtilization)}`} icon={<Gauge className="h-4 w-4" />} />
         </div>
 
         <div>
