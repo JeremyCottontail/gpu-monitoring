@@ -183,6 +183,25 @@ Fixed an issue where GPU utilization and memory usage graphs showed incorrect sc
 3. Added bounds checking for utilization values to ensure they stay between 0-100%
 4. Updated labels in `GpuCard.tsx` to clarify the 0-100% range for historical data
 
+## Mock Mode
+
+Added a mock mode for UI testing without requiring actual NVIDIA GPUs. This feature enables developers to:
+- Test all UI components with realistic simulated data
+- Verify responsive layouts and visualizations
+- Demonstrate the dashboard functionality without hardware
+- Develop and iterate faster during development
+
+The mock mode generates random but realistic GPU metrics including:
+- GPU utilization percentages
+- Memory usage statistics
+- Temperature readings
+- Power consumption values
+- Fan speeds
+- Process information
+- System metrics (CPU, memory, load average)
+
+The mode can be toggled on/off using the switch in the dashboard header, and preferences are saved between sessions.
+
 ## API Reference
 
 ### REST Endpoints

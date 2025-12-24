@@ -38,7 +38,7 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-2xl bg-black/20 p-4">
             <div className="mb-3 flex items-center justify-between text-sm text-slate-300">
               <span className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
               </span>
               <span className="text-xs text-slate-400">Last 60s (0-100%)</span>
             </div>
-            <MetricSparkline data={utilizationHistory} stroke="#38BDF8" />
+            <MetricSparkline data={utilizationHistory} stroke="#38BDF8" title="GPU Utilization" />
           </div>
           <div className="rounded-2xl bg-black/20 p-4">
             <div className="mb-3 flex items-center justify-between text-sm text-slate-300">
@@ -57,7 +57,7 @@ export const GpuCard = ({ gpu, utilizationHistory, memoryHistory }: Props) => {
               </span>
               <span className="text-xs text-slate-400">{formatMemory(gpu.memoryUsed)} / {formatMemory(gpu.memoryTotal)}</span>
             </div>
-            <MetricSparkline data={memoryHistory} stroke="#A855F7" />
+            <MetricSparkline data={memoryHistory} stroke="#A855F7" title="Memory Usage" />
           </div>
         </div>
 

@@ -6,6 +6,8 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { SystemStats } from "@/components/SystemStats";
 import { useGpuStream } from "@/hooks/useGpuStream";
 import type { TelemetryPayload } from "@/types";
+import { generateMockTelemetry, generateMockHistory } from "@/utils/mockData";
+import { MockModeToggle } from "@/components/MockModeToggle";
 
 type HistoryEntry = {
   utilization: number[];
@@ -35,6 +37,25 @@ const useHistory = () => {
   return { history, update };
 };
 
+// Mock data for testing
+const useMockData = () => {
+  const [mockData, setMockData] = useState<TelemetryPayload | null>(null);
+
+  useEffect(() => {
+    // Generate initial mock data
+    setMockData(generateMockTelemetry());
+
+    // Update mock data periodically
+    const interval = setInterval(() => {
+      setMockData(generateMockTelemetry());
+    }, 2000); // Update every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return mockData;
+};
+
 const append = (values: number[], value: number) => {
   const next = [...values, value];
   if (next.length > MAX_HISTORY) next.shift();
@@ -61,30 +82,34 @@ const average = (values: number[]) => {
 
 const App = () => {
   const { data, status, error, reconnect } = useGpuStream();
+  const mockData = useMockData();
   const { history, update } = useHistory();
 
+  // Determine which data to use based on mock mode
+  const displayData = localStorage.getItem('mockModeEnabled') === 'true' ? mockData : data;
+
   useEffect(() => {
-    update(data ?? null);
-  }, [data, update]);
+    update(displayData ?? null);
+  }, [displayData, update]);
 
   const aggregateUtilization = useMemo(() => {
-    if (!data?.gpus?.length) return 0;
+    if (!displayData?.gpus?.length) return 0;
     return (
-      data.gpus.reduce((sum, gpu) => sum + (gpu.utilization ?? 0), 0) /
-      Math.max(data.gpus.length, 1)
+      displayData.gpus.reduce((sum, gpu) => sum + (gpu.utilization ?? 0), 0) /
+      Math.max(displayData.gpus.length, 1)
     );
-  }, [data]);
+  }, [displayData]);
 
   const totalMemory = useMemo(() => {
-    if (!data?.gpus?.length) return { used: 0, total: 0 };
-    return data.gpus.reduce(
+    if (!displayData?.gpus?.length) return { used: 0, total: 0 };
+    return displayData.gpus.reduce(
       (acc, gpu) => ({
         used: acc.used + (gpu.memoryUsed ?? 0),
         total: acc.total + (gpu.memoryTotal ?? 0),
       }),
       { used: 0, total: 0 }
     );
-  }, [data]);
+  }, [displayData]);
 
   return (
     <div className="min-h-screen bg-gradient-hero pb-16">
@@ -121,35 +146,43 @@ const App = () => {
             </div>
           </div>
 
-          {error && (
-            <div className="mt-6 flex items-center justify-between rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-              <p>{error}</p>
-              <button
-                onClick={reconnect}
-                className="inline-flex items-center gap-2 rounded-full bg-rose-500/20 px-3 py-1 text-xs uppercase tracking-wide"
-              >
-                <RefreshCw className="h-3 w-3" /> Retry
-              </button>
+          <div className="mt-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <MockModeToggle />
             </div>
-          )}
+
+            {error && (
+              <div className="flex items-center justify-between rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <p>{error}</p>
+                <button
+                  onClick={reconnect}
+                  className="inline-flex items-center gap-2 rounded-full bg-rose-500/20 px-3 py-1 text-xs uppercase tracking-wide"
+                >
+                  <RefreshCw className="h-3 w-3" /> Retry
+                </button>
+              </div>
+            )}
+          </div>
         </motion.header>
 
-        <SystemStats metrics={data?.system} />
+        <SystemStats metrics={displayData?.system} />
 
-        <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          {data?.gpus?.map((gpu) => (
+        <section className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
+          {displayData?.gpus?.map((gpu) => (
             <GpuCard
               key={gpu.id}
               gpu={gpu}
-              utilizationHistory={history[gpu.id]?.utilization ?? []}
-              memoryHistory={history[gpu.id]?.memory ?? []}
+              utilizationHistory={history[gpu.id]?.utilization ?? generateMockHistory()}
+              memoryHistory={history[gpu.id]?.memory ?? generateMockHistory()}
             />
           ))}
         </section>
 
-        {!data?.gpus?.length && status !== "connecting" && (
+        {!displayData?.gpus?.length && status !== "connecting" && (
           <div className="glass-panel text-center py-16 text-slate-300">
-            No GPUs detected. Ensure the telemetry service is running.
+            {localStorage.getItem('mockModeEnabled') === 'true'
+              ? "Mock data loaded - no real GPUs detected"
+              : "No GPUs detected. Ensure the telemetry service is running."}
           </div>
         )}
       </div>

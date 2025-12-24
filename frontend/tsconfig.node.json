@@ -8,7 +8,8 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "target": "es2020",
-    "lib": ["es2020", "dom"]
+    "lib": ["es2020", "dom"],
+    "types": ["node"]
   },
   "include": ["vite.config.ts"]
 }

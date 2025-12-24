@@ -21,6 +21,18 @@
 
 *The dashboard provides a comprehensive, real-time view of GPU performance metrics, system statistics, and active workloads across all installed GPUs.*
 
+## 🧪 Mock Mode
+
+For testing purposes without requiring actual NVIDIA GPUs, the dashboard includes a **Mock Mode** that generates realistic fake data for visualization.
+
+The mock mode can be toggled using the switch in the header. When enabled:
+- All GPU metrics are randomly generated for visualization
+- System metrics (CPU, memory, load average) are simulated
+- Charts update in real-time with changing values
+- Perfect for UI testing, development, and demonstration
+
+This feature allows developers to test the full UI experience even when working on systems without GPU hardware.
+
 ---
 
 ## ✨ Features
@@ -207,7 +219,7 @@ frontend/
 
 - **Python 3.10+** with pip
 - **Node.js 18+** with npm
-- **NVIDIA GPU** with drivers installed
+- **NVIDIA GPU** with drivers installed (optional for mock mode)
 - **nvidia-smi** available in PATH (verify with `nvidia-smi`)
 
 ### Option 1: Docker Compose (Recommended)
@@ -272,6 +284,16 @@ npm run dev
 ```
 
 The frontend will be available at `http://localhost:3000` with automatic API proxying.
+
+### Testing Without Hardware
+
+When developing or testing without actual NVIDIA GPUs, you can use the **Mock Mode**:
+1. Toggle the "Mock Mode" switch in the dashboard header
+2. The interface will display realistic simulated GPU metrics
+3. All charts and visualizations will update in real-time with fake data
+4. Preferences are saved between sessions
+
+This feature allows for full UI testing and development without GPU hardware requirements.
 
 ### Option 3: Using Make
 
