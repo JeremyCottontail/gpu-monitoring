@@ -95,7 +95,7 @@ const average = (values: number[]) => {
 const App = () => {
   const { data, status, error, reconnect } = useGpuStream();
   const mockData = useMockData();
-  const { history, update } = useHistory();
+  const { history, systemHistory, update } = useHistory();
 
   // Determine which data to use based on mock mode
   const displayData = localStorage.getItem('mockModeEnabled') === 'true' ? mockData : data;
@@ -179,8 +179,8 @@ const App = () => {
 
         <SystemStats
   metrics={displayData?.system}
-  cpuHistory={systemHistory.cpuUsage}
-  memoryHistory={systemHistory.memoryUsage}
+  cpuHistory={systemHistory?.cpuUsage}
+  memoryHistory={systemHistory?.memoryUsage}
 />
 
         <section className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
