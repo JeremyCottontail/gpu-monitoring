@@ -6,26 +6,28 @@ import { MetricChart } from "./MetricChart";
 
 type Props = {
   metrics?: SystemMetrics;
+  cpuHistory?: number[];
+  memoryHistory?: number[];
 };
 
-export const SystemStats = ({ metrics }: Props) => {
+export const SystemStats = ({ metrics, cpuHistory, memoryHistory }: Props) => {
   if (!metrics) return null;
 
-  // Prepare historical data for charts (assuming we have some history)
-  // In a real implementation, this would come from a data store or history tracking
-  const cpuHistory = Array(60).fill(0).map(() => Math.random() * 100);
-  const memoryHistory = Array(60).fill(0).map(() => Math.random() * 100);
+  // Use real values from metrics for current display
+  // Use historical data for charts (could be real or mock depending on context)
+  const cpuHistoryData = cpuHistory || Array(60).fill(0).map(() => Math.random() * 100);
+  const memoryHistoryData = memoryHistory || Array(60).fill(0).map(() => Math.random() * 100);
 
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <MetricChart
-        data={cpuHistory}
+        data={cpuHistoryData}
         title="CPU Usage"
         unit="%"
         color="#3B82F6"
       />
       <MetricChart
-        data={memoryHistory}
+        data={memoryHistoryData}
         title="Memory Usage"
         unit="%"
         color="#10B981"
@@ -63,4 +65,3 @@ export const SystemStats = ({ metrics }: Props) => {
     </section>
   );
 };
-

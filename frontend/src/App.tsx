@@ -18,6 +18,10 @@ const MAX_HISTORY = 60;
 
 const useHistory = () => {
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
+  const [systemHistory, setSystemHistory] = useState({
+    cpuUsage: [] as number[],
+    memoryUsage: [] as number[]
+  });
 
   const update = useCallback((payload: TelemetryPayload | null) => {
     if (!payload) return;
@@ -32,9 +36,17 @@ const useHistory = () => {
       });
       return next;
     });
+
+    // Update system metrics history
+    if (payload.system) {
+      setSystemHistory(prev => ({
+        cpuUsage: append(prev.cpuUsage, payload.system?.cpuUsage ?? 0),
+        memoryUsage: append(prev.memoryUsage, payload.system?.memoryUsage ?? 0)
+      }));
+    }
   }, []);
 
-  return { history, update };
+  return { history, systemHistory, update };
 };
 
 // Mock data for testing
@@ -165,7 +177,11 @@ const App = () => {
           </div>
         </motion.header>
 
-        <SystemStats metrics={displayData?.system} />
+        <SystemStats
+  metrics={displayData?.system}
+  cpuHistory={systemHistory.cpuUsage}
+  memoryHistory={systemHistory.memoryUsage}
+/>
 
         <section className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
           {displayData?.gpus?.map((gpu) => (
