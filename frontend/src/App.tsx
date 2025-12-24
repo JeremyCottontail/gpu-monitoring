@@ -93,12 +93,16 @@ const average = (values: number[]) => {
 };
 
 const App = () => {
+  // Only connect to backend if not in mock mode
   const { data, status, error, reconnect } = useGpuStream();
   const mockData = useMockData();
   const { history, systemHistory, update } = useHistory();
 
+  // Check if mock mode is enabled
+  const isMockMode = localStorage.getItem('mockModeEnabled') === 'true';
+
   // Determine which data to use based on mock mode
-  const displayData = localStorage.getItem('mockModeEnabled') === 'true' ? mockData : data;
+  const displayData = isMockMode ? mockData : data;
 
   useEffect(() => {
     update(displayData ?? null);
@@ -134,7 +138,7 @@ const App = () => {
           <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent-500/30 blur-3xl" />
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
-              <StatusBadge status={status} />
+              <StatusBadge status={isMockMode ? "online" : status} isMockMode={isMockMode} />
               <h1 className="mt-4 font-display text-4xl text-white md:text-5xl">
                 Real-Time GPU Observatory
               </h1>
@@ -163,7 +167,7 @@ const App = () => {
               <MockModeToggle />
             </div>
 
-            {error && (
+            {error && !isMockMode && (
               <div className="flex items-center justify-between rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
                 <p>{error}</p>
                 <button
@@ -196,7 +200,7 @@ const App = () => {
 
         {!displayData?.gpus?.length && status !== "connecting" && (
           <div className="glass-panel text-center py-16 text-slate-300">
-            {localStorage.getItem('mockModeEnabled') === 'true'
+            {isMockMode
               ? "Mock data loaded - no real GPUs detected"
               : "No GPUs detected. Ensure the telemetry service is running."}
           </div>

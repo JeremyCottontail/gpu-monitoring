@@ -4,6 +4,7 @@ import type { StreamStatus } from "@/types";
 
 type Props = {
   status: StreamStatus;
+  isMockMode?: boolean;
 };
 
 const statusConfig: Record<StreamStatus, { label: string; icon: React.ReactNode; color: string }> = {
@@ -29,7 +30,22 @@ const statusConfig: Record<StreamStatus, { label: string; icon: React.ReactNode;
   },
 };
 
-export const StatusBadge = ({ status }: Props) => {
+export const StatusBadge = ({ status, isMockMode }: Props) => {
+  // If in mock mode, override the status to show "Mock Mode"
+  if (isMockMode) {
+    return (
+      <motion.div
+        layout
+        className="inline-flex items-center gap-2 rounded-full bg-purple-500/20 px-3 py-1 text-xs font-medium uppercase tracking-wide text-purple-300"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <Activity className="h-4 w-4" />
+        Mock Mode
+      </motion.div>
+    );
+  }
+
   const cfg = statusConfig[status];
   return (
     <motion.div
